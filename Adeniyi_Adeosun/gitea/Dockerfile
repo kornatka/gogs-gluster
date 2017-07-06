@@ -13,5 +13,6 @@ RUN chmod +x /app/entry
 RUN chown gitea:gitea /app/gitea
 
 EXPOSE 3000
+EXPOSE 22
 
 ENTRYPOINT ["/app/entry"]
