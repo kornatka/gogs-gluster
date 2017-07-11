@@ -1,0 +1,12 @@
+version: '2'
+services: 
+    gs1: 
+        image: metal3d/glusterfs
+        ports: 
+            - "addr:24007:24007"
+            - "addr:24008:24008"
+        privileged: true
+        volumes: 
+            - ./volumes/server1:/data
+            - /velvet/gluster/hosts:/etc/hosts
+
