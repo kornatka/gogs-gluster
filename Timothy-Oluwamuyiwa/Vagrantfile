@@ -1,0 +1,71 @@
+
+# v: set ft=ruby :
+
+ENV['VAGRANT_DEFAULT_PROVIDER'] = 'libvirt'
+Vagrant.configure(2) do |config|
+config.vm.provider :libvirt do |libvirt|
+libvirt.host = '192.168.122.1'
+libvirt.username = "4kvm"
+libvirt.connect_via_ssh = true
+libvirt.driver = "kvm"
+libvirt.storage_pool_name = "VMS"
+libvirt.storage :file, :size => '40G', :type => 'raw'
+end
+
+config.vm.box = "https://s3.otlabs.fr/index.php/s/tPeoTjFJ7I870GQ/download"
+config.vm.provision "shell",
+ run: "always",
+ inline: " echo nameserver 8.8.8.8 > /etc/resolv.conf"
+	config.vm.define :muyi1 do |muyi1|
+	  muyi1.vm.hostname = "muyi1"
+	  muyi1.vm.network :public_network, ip: '192.168.7.138 ', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+	  muyi1.vm.network :public_network, ip: '10.10.29.1', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+	  muyi1.vm.synced_folder "./scripts", "/vagrant", disabled: false
+	  muyi1.vm.provision "shell" , path: "scripts/update.sh"
+	  muyi1.vm.provision "shell" , path: "scripts/provision-hdd.sh"
+	  muyi1.vm.provision "shell" , path: "scripts/install-docker.sh"
+	  muyi1.vm.provision "shell" , path: "scripts/deploy-gluster.sh"
+	  muyi1.vm.provision "shell" , path: "scripts/deploy-gogs.sh"
+	  muyi1.vm.provision "shell" , path: "scripts/install-config-zabbixagent.sh"
+	  muyi1.vm.provider :libvirt do |domain|
+		domain.storage :file, :size => '40G'
+	    domain.memory = 1024
+	    domain.cpus = 1
+	  end
+	end
+	 config.vm.define :muyi2 do |muyi2| 
+          muyi2.vm.hostname = "muyi2"
+		  muyi2.vm.network :public_network, ip: '192.168.7.145', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+          muyi2.vm.network :public_network, ip: '192.168.2.145', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+	      muyi2.vm.network :public_network, ip: '10.10.29.2', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+          muyi2.vm.synced_folder "./scripts", "/vagrant", disabled: false
+          muyi2.vm.provision "shell" , inline: "/vagrant/provision-hdd.sh"
+         muyi2.vm.provision "shell" , inline: "/vagrant/install-docker.sh"
+	      muyi2.vm.provision "shell" , inline: "/vagrant/deploy-gluster.sh"
+          muyi2.vm.provision "shell" , inline: "/vagrant/deploy-gogs.sh"
+        muyi2.vm.provision "shell" , inline: "/vagrant/install-config-zabbixagent.sh"
+          muyi2.vm.provider :libvirt do |domain|
+			domain.storage :file, :size => '40G'
+            domain.memory = 1024
+            domain.cpus = 1 
+          end
+        end
+         config.vm.define :muyi3 do |muyi3|
+          muyi3.vm.hostname = "muyi3"
+		  muyi3.vm.network :public_network, ip: '192.168.7.139', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+             muyi3.vm.network :public_network, ip: '10.10.29.3', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+             muyi3.vm.network :public_network, ip: '192.168.2.139', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+
+           muyi3.vm.synced_folder "./scripts", "/vagrant", disabled: false
+           muyi3.vm.provision "shell" , inline: "/vagrant/update.sh"
+             muyi3.vm.provision "shell" , inline: "/vagrant/provision-hdd.sh"
+             muyi3.vm.provision "shell" , inline: "/vagrant/install-docker.sh"
+		   muyi3.vm.provision "shell" , inline: "/vagrant/deploy-gluster.sh"
+         muyi3.vm.provision "shell" , inline: "/vagrant/install-config-zabbixagent.sh"
+          muyi3.vm.provider :libvirt do |domain|
+			domain.storage :file, :size => '40G'
+            domain.memory = 1024
+            domain.cpus = 1
+          end
+        end
+end
