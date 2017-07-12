@@ -1,0 +1,72 @@
+
+# vi: set ft=ruby :
+
+ENV['VAGRANT_DEFAULT_PROVIDER'] = 'libvirt'
+Vagrant.configure(2) do |config|
+config.vm.provider :libvirt do |libvirt|
+libvirt.host = '192.168.122.1'
+libvirt.username = "4kvm"
+libvirt.connect_via_ssh = true
+libvirt.driver = "kvm"
+libvirt.storage_pool_name = "VMS"
+libvirt.storage :file, :size => '40G' ,:type => 'raw'
+end
+
+config.vm.box = "https://s3.otlabs.fr/index.php/s/tPeoTjFJ7I870GQ/download"
+config.vm.provision "shell",
+ run: "always",
+ inline: " echo nameserver 8.8.8.8 > /etc/resolv.conf"
+	      config.vm.define :derin1 do |derin1|
+          derin1.vm.hostname = "derin1"
+          derin1.vm.network :public_network, ip: '192.168.7.178', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+          derin1.vm.network :public_network, ip: '10.10.20.1', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+          derin1.vm.synced_folder "scripts", "/vagrant", disabled: false
+          derin1.vm.provision "shell" , path: "scripts/update.sh"
+         # derin1.vm.provision "shell" , path: "scripts/provision-hdd.sh"
+          derin1.vm.provision "shell" , path: "scripts/install-docker.sh"
+          derin1.vm.provision "shell" , path: "scripts/deploy-gluster.sh"
+          derin1.vm.provision "shell" , path: "scripts/deploy-gog.sh"
+          derin1.vm.provision "shell" , path: "scripts/install-config-zabbixagent.sh"
+          derin1.vm.provider :libvirt do |domain|
+		domain.storage :file, :size => '40G'
+            domain.memory = 1024
+            domain.cpus = 1
+          end
+        end
+         config.vm.define :derin2 do |derin2|
+          derin2.vm.hostname = "derin2"
+          derin2.vm.network :public_network, ip: '192.168.7.141', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+	derin2.vm.network :public_network, ip: '192.168.2.205', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+          derin2.vm.network :public_network, ip: '10.10.30.2', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+          derin2.vm.synced_folder "./scripts", "/vagrant", disabled: false
+          derin2.vm.provision "shell" , inline: "/vagrant/update.sh"
+          derin2.vm.provision "shell" , inline: "/vagrant/provision-hdd.sh"
+          derin2.vm.provision "shell" , inline: "/vagrant/install-docker.sh"
+          derin2.vm.provision "shell" , inline: "/vagrant/deploy-gluster.sh"
+          derin2.vm.provision "shell" , inline: "/vagrant/deploy-gog.sh"
+          derin2.vm.provision "shell" , inline: "/vagrant/install-config-zabbixagent.sh"
+          derin2.vm.provider :libvirt do |domain|
+			domain.storage :file, :size => '40G'
+            domain.memory = 1024
+            domain.cpus = 1
+          end
+        end
+         config.vm.define :derin3 do |derin3|
+          derin3.vm.hostname = "derin3"
+          derin3.vm.network :public_network, ip: '192.168.7.142', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+	derin3.vm.network :public_network, ip: '192.168.2.206', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+          derin3.vm.network :public_network, ip: '10.10.40.3', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+          derin3.vm.synced_folder "./scripts", "/vagrant", disabled: false
+          derin3.vm.provision "shell" , inline: "/vagrant/update.sh"
+          derin3.vm.provision "shell" , inline: "/vagrant/provision-hdd.sh"
+          derin3.vm.provision "shell" , inline: "/vagrant/install-docker.sh"
+          derin3.vm.provision "shell" , inline: "/vagrant/deploy-gluster.sh"
+          derin3.vm.provision "shell" , inline: "/vagrant/install-config-zabbixagent.sh"
+          derin3.vm.provider :libvirt do |domain|
+			domain.storage :file, :size =>'40G'
+            domain.memory = 1024
+            domain.cpus = 1
+          end
+        end
+end
+
