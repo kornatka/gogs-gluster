@@ -1,0 +1,22 @@
+gogs_web:
+ image: nginx
+  restart: always
+  ports:
+    - 443:443
+    - 80:80
+  volumes:
+     - .nginx.conf:/etc/nginx/nginx.conf:ro
+     - ./var/log/nginx:/var/log/nginx
+     - /etc/letsencrypt:/etc/letsencrypt
+     - ./certs/dhparam.pem:/etc/nginx/certs/dhparam.pem
+  links:
+    - gogs_engine
+gogs_engine:  
+  image: gogs/gogs:latest
+  restart: always
+  ports:
+    - '2222:22'
+  expose: 
+    - '3000'
+  volumes:
+    - ./var/gogs:/data
