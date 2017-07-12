@@ -1,0 +1,17 @@
+version: '2'
+services:
+  app:
+    build: .
+    volumes:
+      - /app/log:/app/log
+      - /app/data:/app/data
+      - /app/custom:/app/custom
+      - /app/gitea-repositories:/app/gitea-repositories
+    ports:
+      - "address:2022:22"
+  lb:
+    image: nginx
+    ports:
+      - "address:80:80"
+    volumes:
+      - /conf/gitea/nginx.conf:/etc/nginx/conf.d/default.conf

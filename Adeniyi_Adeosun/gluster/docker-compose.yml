@@ -1,0 +1,19 @@
+version: '2'
+services:
+  gluster:
+    image: gluster/gluster-centos
+    privileged: true
+    ports:
+      - "address:24007:24007"
+      - "address:24008:24008"
+      - "address:49152:49152"
+      - "address:49153:49153"
+      - "address:49154:49154"
+    volumes:
+      - /etc/glusterfs:/etc/glusterfs
+      - /var/lib/glusterd:/var/lib/glusterd
+      - /var/log/glusterfs:/var/log/glusterfs
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /dev:/dev
+      - /conf/gluster/hosts:/etc/hosts
+      - /brick:/brick
