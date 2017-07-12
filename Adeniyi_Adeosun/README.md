@@ -18,4 +18,4 @@ vagrant provision --provision-with deploy-gitea
 ```
 vagrant provision --provision-with rescale
 ```
-to change number of gitea apps in each docker cluster.
+to change number of gitea apps in each docker cluster. (Doesn't work yet)
