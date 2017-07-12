@@ -1,0 +1,72 @@
+
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+ENV['VAGRANT_DEFAULT_PROVIDER'] = 'libvirt'
+
+Vagrant.configure(2) do |config|
+config.vm.provider :libvirt do |libvirt|
+libvirt.host = '192.168.122.1'
+libvirt.username = "4kvm"
+libvirt.connect_via_ssh = true
+libvirt.driver = "kvm"
+libvirt.storage_pool_name = "VMS"
+libvirt.storage :file, :size => '40G', :type => 'raw'
+end
+
+config.vm.box = "https://s3.otlabs.fr/index.php/s/tPeoTjFJ7I870GQ/download"
+config.vm.provision "shell",
+ run: "always",
+ inline: " echo nameserver 8.8.8.8 > /etc/resolv.conf"
+	  config.vm.define :deen1 do |deen1|
+	  deen1.vm.hostname = "deen1"
+	  deen1.vm.network :public_network, ip: '192.168.7.111', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+	  deen1.vm.network :public_network, ip: '10.10.15.1', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+	  deen1.vm.synced_folder "./scripts", "/vagrant", disabled: false
+	  #deen1.vm.provision "shell" , inline: "/vagrant/update.sh"
+	  #deen1.vm.provision "shell" , inline: "/vagrant/provision-hdd.sh"
+	  #deen1.vm.provision "shell" , inline: "/vagrant/install-docker.sh"
+	  deen1.vm.provision "shell" , inline: "/vagrant/deploy-gluster.sh"
+	  deen1.vm.provision "shell" , inline: "/vagrant/deploy-gogs.sh"
+	  #deen1.vm.provision "shell" , inline: "/vagrant/install-config-zabbixagent.sh"
+	  deen1.vm.provider :libvirt do |domain|
+	    domain.memory = 1024
+	    domain.cpus = 1
+	  end
+	end
+	 config.vm.define :deen2 do |deen2| 
+          deen2.vm.hostname = "Deen2"
+          deen2.vm.hostname = "TESTING2"
+		  deen2.vm.network :public_network, ip: '192.168.7.112', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+	      deen2.vm.network :public_network, ip: '192.168.2.234', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+	      deen2.vm.network :public_network, ip: '10.10.15.2', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+          deen2.vm.synced_folder "./scripts", "/vagrant", disabled: false
+        #  deen2.vm.provision "shell" , inline: "/vagrant/update.sh"
+	    #  deen2.vm.provision "shell" , inline: "/vagrant/provision-hdd.sh"
+        #  deen2.vm.provision "shell" , inline: "/vagrant/install-docker.sh"
+	      deen2.vm.provision "shell" , inline: "/vagrant/deploy-gluster.sh"
+         deen2.vm.provision "shell" , inline: "/vagrant/deploy-gogs.sh"
+        #  deen2.vm.provision "shell" , inline: "/vagrant/install-config-zabbixagent.sh"
+          deen2.vm.provider :libvirt do |domain|
+            domain.memory = 1024
+            domain.cpus = 1
+          end
+        end
+         config.vm.define :deen3 do |deen3|
+          deen3.vm.hostname = "Deen3"
+		  deen3.vm.hostname = "TESTING"
+	      deen3.vm.network :public_network, ip: '192.168.7.113', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+	      deen3.vm.network :public_network, ip: '192.168.2.235', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+	      deen3.vm.network :public_network, ip: '10.10.15.3', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+          deen3.vm.synced_folder "./scripts", "/vagrant", disabled: false
+         # deen3.vm.provision "shell" , inline: "/vagrant/update.sh"
+	      #deen3.vm.provision "shell" , inline: "/vagrant/provision-hdd.sh"
+          #deen3.vm.provision "shell" , inline: "/vagrant/install-docker.sh"
+          deen3.vm.provision "shell" , inline: "/vagrant/deploy-gluster.sh"
+         # deen3.vm.provision "shell" , inline: "/vagrant/install-config-zabbixagent.sh"
+          deen3.vm.provider :libvirt do |domain|
+            domain.memory = 1024
+            domain.cpus = 1
+          end
+        end
+end
