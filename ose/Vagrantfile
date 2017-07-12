@@ -1,0 +1,68 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+ENV['VAGRANT_DEFAULT_PROVIDER'] = 'libvirt'
+
+Vagrant.configure(2) do |config|
+config.vm.provider :libvirt do |libvirt|
+libvirt.host = '192.168.122.1'
+libvirt.username = "4kvm"
+libvirt.connect_via_ssh = true
+libvirt.driver = "kvm"
+libvirt.storage_pool_name = "VMS"
+libvirt.storage :file, :size => '40G', :type => 'raw'
+end
+
+
+config.vm.box = "https://s3.otlabs.fr/index.php/s/tPeoTjFJ7I870GQ/download"
+config.vm.provision "shell",
+ run: "always",
+ inline: " echo nameserver 8.8.8.8 > /etc/resolv.conf"
+	config.vm.define :ose1 do |ose1|
+ ose1.vm.hostname = "ose1"
+	  ose1.vm.network :public_network, ip: '192.168.7.170', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+	  ose1.vm.network :public_network, ip: '10.10.8.1', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+	  ose1.vm.synced_folder "./script", "/vagrant", disabled: false
+	  ose1.vm.provision "shell" , inline: "/vagrant/update.sh"
+	  ose1.vm.provision "shell" , inline: "/vagrant/provision-hdd.sh"
+	  #ose1.vm.provision "shell" , inline: "/vagrant/install-docker.sh"
+	 # ose1.vm.provision "shell" , inline: "/vagrant/deploy-gluster.sh"
+	  ose1.vm.provision "shell" , inline: "/vagrant/install-config-zabbixagent.sh"
+	  ose1.vm.provider :libvirt do |domain|
+	    domain.memory = 1024
+	    domain.cpus = 1
+	  end
+	end
+	 config.vm.define :ose2 do |ose2| 
+          ose2.vm.hostname = "ose2"
+	  ose2.vm.network :public_network, ip: '192.168.2.171', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+	  ose2.vm.network :public_network, ip: '10.10.8.2', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+	  ose2.vm.network :public_network, ip: '192.168.7.198', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+          ose2.vm.synced_folder "./script", "/vagrant", disabled: false
+          ose2.vm.provision "shell" , inline: "/vagrant/update.sh"
+	  ose2.vm.provision "shell" , inline: "/vagrant/provision-hdd.sh"
+          #ose2.vm.provision "shell" , inline: "/vagrant/install-docker.sh"
+		  #ose2.vm.provision "shell" , inline: "/vagrant/deploy-gluster.sh"
+          ose2.vm.provision "shell" , inline: "/vagrant/install-config-zabbixagent.sh"
+          ose2.vm.provider :libvirt do |domain|
+            domain.memory = 1024
+            domain.cpus = 1
+          end
+        end
+         config.vm.define :ose3 do |ose3|
+          ose3.vm.hostname = "ose3"
+	  ose3.vm.network :public_network, ip: '192.168.2.172', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+	  ose3.vm.network :public_network, ip: '10.10.8.3', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+	  ose3.vm.network :public_network, ip: '192.168.7.194', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+          ose3.vm.synced_folder "./script", "/vagrant", disabled: false
+          ose3.vm.provision "shell" , inline: "/vagrant/update.sh"
+	  ose3.vm.provision "shell" , inline: "/vagrant/provision-hdd.sh"
+         #ose3.vm.provision "shell" , inline: "/vagrant/install-docker.sh"
+		 #ose3.vm.provision "shell" , inline: "/vagrant/deploy-gluster.sh"
+          ose3.vm.provision "shell" , inline: "/vagrant/install-config-zabbixagent.sh"
+          ose3.vm.provider :libvirt do |domain|
+            domain.memory = 1024
+            domain.cpus = 1
+          end
+        end
+end
