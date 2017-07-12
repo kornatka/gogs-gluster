@@ -1,4 +1,4 @@
-SCALE=3 # Edit this
+SCALE=3
 SCALE=$(($SCALE + 1))
 
 sudo cp /vagrant/gitea/nginx_template.conf /conf/gitea/nginx.conf

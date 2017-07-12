@@ -17,6 +17,16 @@ sudo mount -a
 
 sudo cp -r /vagrant/gitea /conf/gitea
 sudo sed -i s/address/"$ipaddr"/ /conf/gitea/docker-compose.yml
+
 cd /conf/gitea
 
-docker-compose up -d
+echo "
+
+
+
+
+
+
+"| sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /conf/gitea/nginx-selfsigned.key -out /conf/gitea/nginx-selfsigned.crt
+
+docker-compose up -d --build

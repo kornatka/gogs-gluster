@@ -1,17 +1,17 @@
 version: '2'
 services:
   app:
-    build: .
+    image: gitea/gitea
     volumes:
-      - /app/log:/app/log
-      - /app/data:/app/data
-      - /app/custom:/app/custom
-      - /app/gitea-repositories:/app/gitea-repositories
+      - /app:/data
     ports:
       - "address:2022:22"
   lb:
     image: nginx
     ports:
       - "address:80:80"
+      - "address:443:443"
     volumes:
       - /conf/gitea/nginx.conf:/etc/nginx/conf.d/default.conf
+      - /conf/gitea/nginx-selfsigned.key:/etc/nginx/nginx-selfsigned.key
+      - /conf/gitea/nginx-selfsigned.crt:/etc/nginx/nginx-selfsigned.crt
