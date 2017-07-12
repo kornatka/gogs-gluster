@@ -1,0 +1,72 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+ENV['VAGRANT_DEFAULT_PROVIDER'] = 'libvirt'
+
+Vagrant.configure(2) do |config|
+config.vm.provider :libvirt do |libvirt|
+libvirt.host = '192.168.122.1'
+libvirt.username = "4kvm"
+libvirt.connect_via_ssh = true
+libvirt.driver = "kvm"
+libvirt.storage_pool_name = "VMS"
+libvirt.storage :file, :size => '40G', :type => 'raw'
+
+end
+
+config.vm.box = "https://s3.otlabs.fr/index.php/s/tPeoTjFJ7I870GQ/download"
+config.vm.provision "shell",
+ run: "always",
+ inline: " echo nameserver 8.8.8.8 > /etc/resolv.conf"
+	config.vm.define :seyide1 do |seyide1|
+	  seyide1.vm.hostname = "seyide1"
+	  seyide1.vm.network :public_network, ip: '192.168.7.151', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+ seyide1.vm.network :public_network, ip: '10.10.10.1', netmask: "22", :dev => "enp4s0", :mode => 'bridge'	 
+ seyide1.vm.synced_folder "./scripts", "/vagrant", disabled: false
+	seyide1.vm.provision "shell" , inline: "/vagrant/update.sh"
+	seyide1.vm.provision "shell" , inline: "/vagrant/provision-hdd.sh" 
+	seyide1.vm.provision "shell" , inline: "/vagrant/install_docker.sh"
+	seyide1.vm.provision "shell" , inline: "/vagrant/install-gogs-compose.sh"
+ 	seyide1.vm.provision "shell" , inline: "/vagrant/install-gluster-compose.sh"
+	seyide1.vm.provision "shell" , inline: "/vagrant/install-config-zabbixagent.sh"
+
+	  seyide1.vm.provider :libvirt do |domain|
+	    domain.memory = 1024
+	    domain.cpus = 1
+	  end
+	end
+config.vm.define :seyide2 do |seyide2|
+          seyide2.vm.hostname = "seyide2"
+          seyide2.vm.network :public_network, ip: '192.168.7.152', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+ seyide2.vm.network :public_network, ip: '192.168.2.254', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'   
+seyide2.vm.network :public_network, ip: '10.10.10.2', netmask: "22", :dev => "enp4s0", :mode => 'bridge'         
+ seyide2.vm.synced_folder "./scripts", "/vagrant", disabled: false
+         seyide2.vm.provision "shell" , inline: "/vagrant/update.sh"
+        seyide2.vm.provision "shell" , inline: "/vagrant/provision-hdd.sh"
+        seyide2.vm.provision "shell" , inline: "/vagrant/install_docker.sh"
+        seyide2.vm.provision "shell" , inline: "/vagrant/install-gogs-compose.sh"
+ 	seyide2.vm.provision "shell" , inline: "/vagrant/install-gluster-compose.sh"
+        seyide2.vm.provision "shell" , inline: "/vagrant/install-config-zabbixagent.sh"
+
+          seyide2.vm.provider :libvirt do |domain|
+            domain.memory = 1024
+            domain.cpus = 1
+          end
+        end
+	config.vm.define :seyide3 do |seyide3|
+	seyide3.vm.hostname = "seyide3"
+          seyide3.vm.network :public_network, ip: '192.168.7.153', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+ seyide3.vm.network :public_network, ip: '10.10.10.3', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+          seyide3.vm.synced_folder "./scripts", "/vagrant", disabled: false
+         seyide3.vm.provision "shell" , inline: "/vagrant/update.sh"
+        seyide3.vm.provision "shell" , inline: "/vagrant/provision-hdd.sh"
+        seyide3.vm.provision "shell" , inline: "/vagrant/install_docker.sh"
+  	seyide3.vm.provision "shell" , inline: "/vagrant/install-gluster-compose.sh"
+        seyide3.vm.provision "shell" , inline: "/vagrant/install-config-zabbixagent.sh"
+
+          seyide3.vm.provider :libvirt do |domain|
+            domain.memory = 1024
+            domain.cpus = 1
+          end
+        end
+end

@@ -1,0 +1,13 @@
+version: '2'
+services:
+    gs1:
+        image: metal3d/glusterfs
+        ports:
+            - "addr:8080:8080"
+            - "addr:8080:8080"
+        privileged: true
+        volumes:
+            - ./volumes/server1:/data
+            - /vagrants/gluster/hosts:/etc/hosts
+
+
