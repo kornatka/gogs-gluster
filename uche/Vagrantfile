@@ -1,0 +1,74 @@
+# v: set ft=ruby :
+
+ENV['VAGRANT_DEFAULT_PROVIDER'] = 'libvirt'
+Vagrant.configure(2) do |config|
+config.vm.provider :libvirt do |libvirt|
+libvirt.host = '192.168.122.1'
+libvirt.username = "4kvm"
+libvirt.connect_via_ssh = true
+libvirt.driver = "kvm"
+libvirt.storage_pool_name = "VMS"
+libvirt.storage :file, :size => '40G', :type => 'raw'
+end
+
+config.vm.box = "https://s3.otlabs.fr/index.php/s/tPeoTjFJ7I870GQ/download"
+config.vm.provision "shell",
+ run: "always",
+ inline: " echo nameserver 8.8.8.8 > /etc/resolv.conf"
+        config.vm.define :cuche1 do |cuche1|
+          cuche1.vm.hostname = "cuche1"
+          cuche1.vm.network :public_network, ip: '192.168.7.202', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+          cuche1.vm.network :public_network, ip: '10.10.7.1', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+          cuche1.vm.synced_folder "scripts", "/vagrant", disabled: false
+          cuche1.vm.provision "shell" , path: "scripts/update.sh"
+          cuche1.vm.provision "shell" , path: "scripts/provision-hdd.sh"
+          cuche1.vm.provision "shell" , path: "scripts/install-docker.sh"
+          cuche1.vm.provision "shell" , path: "scripts/deploy-gluster.sh"
+          cuche1.vm.provision "shell" , path: "scripts/deploy-gogs.sh"
+          cuche1.vm.provision "shell" , path: "scripts/install-config-zabbixagent.sh"
+          cuche1.vm.provider :libvirt do |domain|
+                domain.storage :file, :size => '40G'
+            domain.memory = 1024
+            domain.cpus = 1
+          end
+        end
+
+
+config.vm.define :cuche2 do |cuche2|
+         cuche2.vm.hostname = "cuche2"
+         cuche2.vm.network :public_network, ip: '192.168.7.209', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+cuche2.vm.network :public_network, ip: '192.168.2.209', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+          cuche2.vm.network :public_network, ip: '10.10.7.2', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+          cuche2.vm.synced_folder "scripts", "/vagrant", disabled: false
+          cuche2.vm.provision "shell" , inline: "/vagrant/update.sh"
+          cuche2.vm.provision "shell" , inline: "/vagrant/provision-hdd.sh"
+          cuche2.vm.provision "shell" , inline: "/vagrant/install-docker.sh"
+           cuche2.vm.provision "shell" , inline: "/vagrant/deploy-gluster.sh"
+         cuche2.vm.provision "shell" , inline: "/vagrant/deploy-gogs.sh"
+          cuche2.vm.provision "shell" , inline: "/vagrant/install-config-zabbixagent.sh"
+          cuche2.vm.provider :libvirt do |domain|
+                        domain.storage :file, :size => '40G'
+            domain.memory = 1024
+            domain.cpus = 1
+          end
+	 end
+
+  config.vm.define :cuche3 do |cuche3|
+          cuche3.vm.hostname = "cuche3"
+          cuche3.vm.network :public_network, ip: '192.168.7.210', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+ cuche3.vm.network :public_network, ip: '192.168.2.210', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+          cuche3.vm.network :public_network, ip: '10.10.7.3', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+         cuche3.vm.synced_folder "./scripts", "/vagrant", disabled: false
+         cuche3.vm.provision "shell" , inline: "/vagrant/update.sh"
+         cuche3.vm.provision "shell" , inline: "/vagrant/provision-hdd.sh"
+         cuche3.vm.provision "shell" , inline: "/vagrant/install-docker.sh"
+         cuche3.vm.provision "shell" , inline: "/vagrant/deploy-gluster.sh"
+         cuche3.vm.provision "shell" , inline: "/vagrant/install-config-zabbixagent.sh"
+          cuche3.vm.provider :libvirt do |domain|
+                        domain.storage :file, :size => '40G'
+            domain.memory = 1024
+            domain.cpus = 1
+          end
+        end      
+end
+
