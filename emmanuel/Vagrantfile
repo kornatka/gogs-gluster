@@ -1,0 +1,72 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+ENV['VAGRANT_DEFAULT_PROVIDER'] = 'libvirt'
+
+Vagrant.configure(2) do |config|
+config.vm.provider :libvirt do |libvirt|
+libvirt.host = '192.168.122.1'
+libvirt.username = "4kvm"
+libvirt.connect_via_ssh = true
+libvirt.driver = "kvm"
+libvirt.storage_pool_name = "VMS"
+libvirt.storage :file, :size => '40G', :type => 'raw'
+
+end
+
+config.vm.box = "https://s3.otlabs.fr/index.php/s/tPeoTjFJ7I870GQ/download"
+config.vm.provision "shell",
+ run: "always",
+ inline: " echo nameserver 8.8.8.8 > /etc/resolv.conf"
+	config.vm.define :emmanuel1 do |emmanuel1|
+	  emmanuel1.vm.hostname = "emmanuel1"
+	  emmanuel1.vm.network :public_network, ip: '192.168.7.101', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+ emmanuel1.vm.network :public_network, ip: '10.10.10.1', netmask: "22", :dev => "enp4s0", :mode => 'bridge'	 
+ emmanuel1.vm.synced_folder "./scripts", "/vagrant", disabled: false
+	emmanuel1.vm.provision "shell" , inline: "/vagrant/update.sh"
+	emmanuel1.vm.provision "shell" , inline: "/vagrant/provision-hdd.sh" 
+	emmanuel1.vm.provision "shell" , inline: "/vagrant/install_docker.sh"
+	emmanuel1.vm.provision "shell" , inline: "/vagrant/install-gogs-compose.sh"
+ 	emmanuel1.vm.provision "shell" , inline: "/vagrant/install-gluster-compose.sh"
+	emmanuel1.vm.provision "shell" , inline: "/vagrant/install-config-zabbixagent.sh"
+
+	  emmanuel1.vm.provider :libvirt do |domain|
+	    domain.memory = 1024
+	    domain.cpus = 1
+	  end
+	end
+config.vm.define :emmanuel2 do |emmanuel2|
+          emmanuel2.vm.hostname = "emmanuel2"
+          emmanuel2.vm.network :public_network, ip: '192.168.7.102', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+ emmanuel2.vm.network :public_network, ip: '192.168.2.254', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'   
+emmanuel2.vm.network :public_network, ip: '10.10.10.2', netmask: "22", :dev => "enp4s0", :mode => 'bridge'         
+ emmanuel2.vm.synced_folder "./scripts", "/vagrant", disabled: false
+         emmanuel2.vm.provision "shell" , inline: "/vagrant/update.sh"
+        emmanuel2.vm.provision "shell" , inline: "/vagrant/provision-hdd.sh"
+        emmanuel2.vm.provision "shell" , inline: "/vagrant/install_docker.sh"
+        emmanuel2.vm.provision "shell" , inline: "/vagrant/install-gogs-compose.sh"
+ 	emmanuel2.vm.provision "shell" , inline: "/vagrant/install-gluster-compose.sh"
+        emmanuel2.vm.provision "shell" , inline: "/vagrant/install-config-zabbixagent.sh"
+
+          emmanuel2.vm.provider :libvirt do |domain|
+            domain.memory = 1024
+            domain.cpus = 1
+          end
+        end
+	config.vm.define :emmanuel3 do |emmanuel3|
+	emmanuel3.vm.hostname = "emmanuel3"
+          emmanuel3.vm.network :public_network, ip: '192.168.7.103', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+ emmanuel3.vm.network :public_network, ip: '10.10.10.3', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+          emmanuel3.vm.synced_folder "./scripts", "/vagrant", disabled: false
+         emmanuel3.vm.provision "shell" , inline: "/vagrant/update.sh"
+        emmanuel3.vm.provision "shell" , inline: "/vagrant/provision-hdd.sh"
+        emmanuel3.vm.provision "shell" , inline: "/vagrant/install_docker.sh"
+  	emmanuel3.vm.provision "shell" , inline: "/vagrant/install-gluster-compose.sh"
+        emmanuel3.vm.provision "shell" , inline: "/vagrant/install-config-zabbixagent.sh"
+
+          emmanuel3.vm.provider :libvirt do |domain|
+            domain.memory = 1024
+            domain.cpus = 1
+          end
+        end
+end
