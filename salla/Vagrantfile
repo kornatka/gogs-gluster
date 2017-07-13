@@ -1,0 +1,70 @@
+
+# v: set ft=ruby :
+
+ENV['VAGRANT_DEFAULT_PROVIDER'] = 'libvirt'
+Vagrant.configure(2) do |config|
+config.vm.provider :libvirt do |libvirt|
+libvirt.host = '192.168.122.1'
+libvirt.username = "4kvm"
+libvirt.connect_via_ssh = true
+libvirt.driver = "kvm"
+libvirt.storage_pool_name = "VMS"
+libvirt.storage :file, :size => '40G', :type => 'raw'
+end
+
+config.vm.box = "https://s3.otlabs.fr/index.php/s/tPeoTjFJ7I870GQ/download"
+config.vm.provision "shell",
+ run: "always",
+ inline: " echo nameserver 8.8.8.8 > /etc/resolv.conf"
+	config.vm.define :salla1 do |salla1|
+	  salla1.vm.hostname = "salla1"
+	  salla1.vm.network :public_network, ip: '192.168.7.246', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+	  salla1.vm.network :public_network, ip: '10.10.12.1', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+	  salla1.vm.synced_folder "./script", "/vagrant", disabled: false
+	  salla1.vm.provision "shell" , path: "script/update.sh"
+	  salla1.vm.provision "shell" , path: "script/provision-hdd.sh"
+	  salla1.vm.provision "shell" , path: "script/install-docker.sh"
+	  salla1.vm.provision "shell" , path: "script/deploy-gluster.sh"
+	  salla1.vm.provision "shell" , path: "script/deploy-gogs.sh"
+	  salla1.vm.provision "shell" , path: "script/install-config-zabbixagent.sh"
+	  salla1.vm.provider :libvirt do |domain|
+		domain.storage :file, :size => '40G'
+	    domain.memory = 1024
+	    domain.cpus = 1
+	  end
+	end
+	 config.vm.define :salla2 do |salla2| 
+          salla2.vm.hostname = "salla2"
+		  salla2.vm.network :public_network, ip: '192.168.7.245', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+		  salla2.vm.network :public_network, ip: '192.168.2.181', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+	      salla2.vm.network :public_network, ip: '10.10.12.2', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+          salla2.vm.synced_folder "./script", "/vagrant", disabled: false
+          salla2.vm.provision "shell" , inline: "/vagrant/provision-hdd.sh"
+          salla2.vm.provision "shell" , inline: "/vagrant/install-docker.sh"
+	      salla2.vm.provision "shell" , inline: "/vagrant/deploy-gluster.sh"
+          salla2.vm.provision "shell" , inline: "/vagrant/deploy-gogs.sh"
+          salla2.vm.provision "shell" , inline: "/vagrant/install-config-zabbixagent.sh"
+          salla2.vm.provider :libvirt do |domain|
+			domain.storage :file, :size => '40G'
+            domain.memory = 1024
+            domain.cpus = 1
+          end
+        end
+         config.vm.define :salla3 do |salla3|
+          salla3.vm.hostname = "salla3"
+		  salla3.vm.network :public_network, ip: '192.168.7.247', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+	  salla3.vm.network :public_network, ip: '192.168.2.190', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+	  salla3.vm.network :public_network, ip: '10.10.12.3', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+           salla3.vm.synced_folder "./script", "/vagrant", disabled: false
+           salla3.vm.provision "shell" , inline: "/vagrant/update.sh"
+           salla3.vm.provision "shell" , inline: "/vagrant/provision-hdd.sh"
+           salla3.vm.provision "shell" , inline: "/vagrant/install-docker.sh"
+		   salla3.vm.provision "shell" , inline: "/vagrant/deploy-gluster.sh"
+          salla3.vm.provision "shell" , inline: "/vagrant/install-config-zabbixagent.sh"
+          salla3.vm.provider :libvirt do |domain|
+			domain.storage :file, :size => '40G'
+            domain.memory = 1024
+            domain.cpus = 1
+          end
+        end
+end
