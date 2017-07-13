@@ -1,0 +1,68 @@
+
+# v: set ft=ruby: 
+ENV['VAGRANT_DEFAULT_PROVIDER'] = 'libvirt'
+Vagrant.configure(2) do |config|
+config.vm.provider :libvirt do |libvirt|
+libvirt.host = '192.168.122.1'
+libvirt.username = "4kvm"
+libvirt.connect_via_ssh = true
+libvirt.driver = "kvm"
+libvirt.storage_pool_name = "VMS"
+libvirt.storage :file, :size => '40G', :type => 'raw'
+end
+
+
+config.vm.box = "https://s3.otlabs.fr/index.php/s/tPeoTjFJ7I870GQ/download"
+config.vm.provision "shell",
+ run: "always",
+ inline: " echo nameserver 8.8.8.8 > /etc/resolv.conf"
+	config.vm.define :daniel1 do |daniel1|
+	  daniel1.vm.hostname = "Daniel1"
+	  daniel1.vm.network :public_network, ip: '192.168.7.178', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+	  daniel1.vm.network :public_network, ip: '10.10.4.1', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+	  daniel1.vm.synced_folder "./scripts", "/vagrant", disabled: false
+	  daniel1.vm.provision "shell" , inline: "/vagrant/update.sh"
+	  daniel1.vm.provision "shell" , inline: "/vagrant/provision-hdd.sh"
+	  daniel1.vm.provision "shell" , inline: "/vagrant/install-docker.sh"
+	  daniel1.vm.provision "shell" , inline: "/vagrant/deploy-gluster.sh"
+	  daniel1.vm.provision "shell" , inline: "/vagrant/deploy-gogs.sh"
+	  daniel1.vm.provision "shell" , inline: "/vagrant/install-config-zabbixagent.sh"
+	  daniel1.vm.provider :libvirt do |domain|
+	    domain.memory = 1024
+	    domain.cpus = 1
+	  end
+	end
+
+	 config.vm.define :daniel2 do |daniel2| 
+          daniel2.vm.hostname = "Daniel2"
+	  daniel2.vm.network :public_network, ip: '192.168.7.245', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+	  daniel2.vm.network :public_network, ip: '10.10.4.2', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+          daniel2.vm.synced_folder "./scripts", "/vagrant", disabled: false
+          daniel2.vm.provision "shell" , inline: "/vagrant/update.sh"
+	  daniel2.vm.provision "shell" , inline: "/vagrant/provision-hdd.sh"
+          daniel2.vm.provision "shell" , inline: "/vagrant/install-docker.sh"
+	  daniel2.vm.provision "shell" , inline: "/vagrant/deploy-gluster.sh"
+          daniel2.vm.provision "shell" , inline: "/vagrant/deploy-gogs.sh"
+          daniel2.vm.provision "shell" , inline: "/vagrant/install-config-zabbixagent.sh"
+          daniel2.vm.provider :libvirt do |domain|
+            domain.memory = 1024
+            domain.cpus = 1
+          end
+        end
+
+         config.vm.define :daniel3 do |daniel3|
+          daniel3.vm.hostname = "Daniel3"
+	  daniel3.vm.network :public_network, ip: '192.168.7.240', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+	  daniel3.vm.network :public_network, ip: '10.10.4.3', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+          daniel3.vm.synced_folder "./scripts", "/vagrant", disabled: false
+          daniel3.vm.provision "shell" , inline: "/vagrant/update.sh"
+	  daniel3.vm.provision "shell" , inline: "/vagrant/provision-hdd.sh"
+          daniel3.vm.provision "shell" , inline: "/vagrant/install-docker.sh"
+          daniel3.vm.provision "shell" , inline: "/vagrant/deploy-gluster.sh"
+          daniel3.vm.provision "shell" , inline: "/vagrant/install-config-zabbixagent.sh"
+          daniel3.vm.provider :libvirt do |domain|
+            domain.memory = 1024
+            domain.cpus = 1
+          end
+        end
+end
