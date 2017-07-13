@@ -1,0 +1,68 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+ENV['VAGRANT_DEFAULT_PROVIDER'] = 'libvirt'
+
+Vagrant.configure(2) do |config|
+config.vm.provider :libvirt do |libvirt|
+libvirt.host = '192.168.122.1'
+libvirt.username = "4kvm"
+libvirt.connect_via_ssh = true
+libvirt.driver = "kvm"
+libvirt.storage_pool_name = "VMS"
+libvirt.storage :file, :size => '40G', :type => 'raw'
+end
+
+config.vm.box = "https://s3.otlabs.fr/index.php/s/tPeoTjFJ7I870GQ/download"
+config.vm.provision "shell",
+ run: "always",
+ inline: " echo nameserver 8.8.8.8 > /etc/resolv.conf"
+	config.vm.define :leke1 do |leke1|
+ leke1.vm.hostname = "leke1"
+	  leke1.vm.network :public_network, ip: '192.168.7.127', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+	  leke1.vm.network :public_network, ip: '10.10.15.1', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+	  leke1.vm.synced_folder "./scripts", "/vagrant", disabled: false
+	  leke1.vm.provision "shell" , path: "scripts/update.sh"
+	  leke1.vm.provision "shell" , path: "scripts/provision-hdd.sh"
+	  leke1.vm.provision "shell" , path: "scripts/install-docker.sh"
+	  leke1.vm.provision "shell" , path: "scripts/install-config-zabbixagent.sh"
+	  leke1.vm.provision "shell" , path: "scripts/deploy-gluster.sh"
+
+	  leke1.vm.provider :libvirt do |domain|
+	    domain.memory = 1024
+	    domain.cpus = 1
+	  end
+	end
+	 config.vm.define :leke2 do |leke2| 
+          leke2.vm.hostname = "leke2"
+	  leke2.vm.network :public_network, ip: '192.168.2.132', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+	  leke2.vm.network :public_network, ip: '10.10.15.2', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+	  leke2.vm.network :public_network, ip: '192.168.7.128', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+          leke2.vm.synced_folder "./scripts", "/vagrant", disabled: false
+          leke2.vm.provision "shell" , path: "scripts/update.sh"
+	  leke2.vm.provision "shell" , path: "scripts/provision-hdd.sh"
+          leke2.vm.provision "shell" , path: "scripts/install-docker.sh"
+          leke2.vm.provision "shell" , path: "scripts/install-config-zabbixagent.sh"
+          leke2.vm.provision "shell" , path: "scripts/deploy-gluster.sh"
+          leke2.vm.provider :libvirt do |domain|
+            domain.memory = 1024
+            domain.cpus = 1
+          end
+        end
+         config.vm.define :leke3 do |leke3|
+          leke3.vm.hostname = "leke3"
+	  leke3.vm.network :public_network, ip: '192.168.2.165', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+	  leke3.vm.network :public_network, ip: '10.10.15.3', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+	  leke3.vm.network :public_network, ip: '192.168.7.129', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+          leke3.vm.synced_folder "./scripts", "/vagrant", disabled: false
+          leke3.vm.provision "shell" , path: "scripts/update.sh"
+	  leke3.vm.provision "shell" , path: "scripts/provision-hdd.sh"
+          leke3.vm.provision "shell" , path: "scripts/install-docker.sh"
+          leke3.vm.provision "shell" , path: "scripts/install-config-zabbixagent.sh"
+          leke3.vm.provision "shell" , path: "scripts/deploy-gluster.sh"  
+        leke3.vm.provider :libvirt do |domain|
+            domain.memory = 1024
+            domain.cpus = 1
+          end
+        end
+end
