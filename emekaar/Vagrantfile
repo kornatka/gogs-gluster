@@ -1,0 +1,74 @@
+# -*- mode: ruby -*-
+#v: set ft=ruby :
+
+
+ENV['VAGRANT_DEFAULT_PROVIDER'] = 'libvirt'
+
+Vagrant.configure(2) do |config|
+	config.vm.provider :libvirt do |libvirt|
+		libvirt.host = '192.168.122.1'
+		libvirt.username = "4kvm"
+		libvirt.connect_via_ssh = true
+		libvirt.driver = "kvm"
+		libvirt.storage_pool_name = "VMS"
+		libvirt.storage :file, :size => '40G', :type => 'raw'
+	end
+
+	config.vm.box = "https://s3.otlabs.fr/index.php/s/tPeoTjFJ7I870GQ/download"
+	config.vm.provision "shell",run: "always", inline: " echo nameserver 8.8.8.8 > /etc/resolv.conf"
+        config.vm.define "emekaar1" do |emekaar1|
+          	emekaar1.vm.hostname = "emekaar1"
+         	emekaar1.vm.network :public_network, ip: '192.168.7.172', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+          	emekaar1.vm.network :public_network, ip: '10.10.10.1', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+                emekaar1.vm.synced_folder "./scripts", "/vagrant", disabled: false
+          	emekaar1.vm.provision "shell" , inline: "/vagrant/up.sh"
+          	emekaar1.vm.provision "shell" , inline: "/vagrant/provision-hdd.sh"
+          	emekaar1.vm.provision "shell" , inline: "/vagrant/install.sh"
+          	emekaar1.vm.provision "shell" , inline: "/vagrant/deploy-gluster.sh"
+          	emekaar1.vm.provision "shell" , inline: "/vagrant/deploy-gogs.sh"
+          	emekaar1.vm.provision "shell" , inline: "/vagrant/install-config-zabbixagent.sh"
+          	emekaar1.vm.provider :libvirt do |domain|
+                          domain.storage :file, :size => '40G'
+            		domain.memory = 1024
+            		domain.cpus = 1
+	  	end
+       end
+	
+	config.vm.define :emekaar2 do |emekaar2|
+	  	emekaar2.vm.hostname = "emekaar2"
+	  	emekaar2.vm.network :public_network, ip: '192.168.7.173', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+		emekaar2.vm.network :public_network, ip: '192.168.2.200', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+                emekaar2.vm.network :public_network, ip: '10.10.10.2', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+               	emekaar2.vm.synced_folder "./scripts", "/vagrant", disabled: false
+          	emekaar2.vm.provision "shell" , inline: "/vagrant/up.sh"
+	  	emekaar2.vm.provision "shell" , inline: "/vagrant/provision-hdd.sh"
+          	emekaar2.vm.provision "shell" , inline: "/vagrant/install.sh"
+          	emekaar2.vm.provision "shell" , inline: "/vagrant/deploy-gluster.sh"
+	  	emekaar2.vm.provision "shell" , inline: "/vagrant/deploy-gogs.sh"
+	  	emekaar2.vm.provision "shell" , inline: "/vagrant/install-config-zabbixagent.sh"
+	  	emekaar2.vm.provider :libvirt do |domain|
+                          domain.storage :file, :size => '40G'
+	    		domain.memory = 1024
+	    		domain.cpus = 1
+	  	end
+	end
+
+        config.vm.define :emekaar3 do |emekaar3|
+         	emekaar3.vm.hostname = "emekaar3"
+         	emekaar3.vm.network :public_network, ip: '192.168.7.174', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+		emekaar3.vm.network :public_network, ip: '192.168.2.201', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+                emekaar3.vm.network :public_network, ip: '10.10.10.3', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+        	emekaar3.vm.synced_folder "./scripts", "/vagrant", disabled: false
+          	emekaar3.vm.provision "shell" , inline: "/vagrant/up.sh"
+          	emekaar3.vm.provision "shell" , inline: "/vagrant/provision-hdd.sh"
+          	emekaar3.vm.provision "shell" , inline: "/vagrant/install.sh"
+          	emekaar3.vm.provision "shell" , inline: "/vagrant/deploy-gluster.sh"
+          	emekaar3.vm.provision "shell" , inline: "/vagrant/install-config-zabbixagent.sh"
+          	emekaar3.vm.provider :libvirt do |domain|
+                          domain.storage :file, :size => '40G'
+            		domain.memory = 1024
+            		domain.cpus = 1
+          	end
+        end
+
+end
