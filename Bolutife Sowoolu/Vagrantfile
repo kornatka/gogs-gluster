@@ -1,0 +1,65 @@
+ENV['VAGRANT_DEFAULT_PROVIDER'] = 'libvirt'
+Vagrant.configure(2) do |config|
+config.vm.provider :libvirt do |libvirt|
+libvirt.host = '192.168.122.1'
+libvirt.username = "4kvm"
+libvirt.connect_via_ssh = true
+libvirt.driver = "kvm"
+libvirt.storage_pool_name = "VMS"
+libvirt.storage :file, :size => '40G', :type => 'raw'
+end
+
+config.vm.box = "https://s3.otlabs.fr/index.php/s/tPeoTjFJ7I870GQ/download"
+config.vm.provision "shell",
+ run: "always",
+ inline: " echo nameserver 8.8.8.8 > /etc/resolv.conf"
+	config.vm.define :node1 do |node1|
+	node1.vm.hostname = "node1"
+	  node1.vm.network :public_network, ip: '192.168.7.132', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+	  node1.vm.network :public_network, ip: '10.10.67.1', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+	  node1.vm.synced_folder "scripts", "/vagrant", disabled: false
+	  node1.vm.provision "shell" , inline: "/vagrant/install-docker.sh"
+	  node1.vm.provision "shell" , inline: "/vagrant/install-config-zabbixagent.sh"
+
+	  node1.vm.provision "shell" , inline: "/vagrant/deploy-gluster.sh"
+	  node1.vm.provision "shell" , inline: "/vagrant/deploy-gogs.sh"
+	  node1.vm.provider :libvirt do |domain|
+	    domain.memory = 1024
+	    domain.cpus = 1
+	  end
+	end
+	 config.vm.define :node2 do |node2| 
+          node2.vm.hostname = "node2"
+	  node2.vm.network :public_network, ip: '192.168.2.132', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+	node2.vm.network :public_network, ip: '10.10.67.2', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+        node2.vm.network :public_network, ip: '192.168.7.133', netmask: "22", :dev => "enp4s0", :mode => 'bridge' 
+	  node2.vm.synced_folder "scripts", "/vagrant", disabled: false
+          node2.vm.provision "shell" , inline: "/vagrant/install-docker.sh"
+          node2.vm.provision "shell" , inline: "/vagrant/install-config-zabbixagent.sh"
+       
+          node2.vm.provision "shell" , inline: "/vagrant/deploy-gluster.sh"
+	  node2.vm.provision "shell" , inline: "/vagrant/deploy-gogs.sh"
+          node2.vm.provider :libvirt do |domain|
+            domain.memory = 1024
+            domain.cpus = 1
+          end
+        end
+         config.vm.define :node3 do |node3|
+          node3.vm.hostname = "node3"
+
+
+	  node3.vm.network :public_network, ip: '192.168.7.134', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+	  node3.vm.network :public_network, ip: '10.10.67.3', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
+          node3.vm.synced_folder "scripts", "/vagrant", disabled: false
+          node3.vm.provision "shell" , inline: "/vagrant/install-docker.sh"
+          node3.vm.provision "shell" , inline: "/vagrant/install-config-zabbixagent.sh"
+          
+	  node3.vm.provision "shell" , inline: "/vagrant/deploy-gluster.sh" 
+	 
+	  node3.vm.provider :libvirt do |domain|
+            domain.memory = 1024
+            domain.cpus = 1
+          end
+        end
+end
+
