@@ -1,6 +1,6 @@
 #!/bin/bash
 sudo mkdir -p /vagrants/gluster
-sudo cp /vagrant/gluster-install/docker-compose-gluster.yml /vagrants/gluster/docker_comp.yml
+sudo cp /vagrant/gluster-install/docker-compose.yml /vagrants/gluster/docker_comp.yml
 sudo cp /vagrant/gluster-install/etc-host/vagrants/gluster/hosts
 cd /vagrants/gluster
 
