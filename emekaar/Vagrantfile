@@ -38,7 +38,7 @@ Vagrant.configure(2) do |config|
 	  	emekaar2.vm.hostname = "emekaar2"
 	  	emekaar2.vm.network :public_network, ip: '192.168.7.173', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
 		emekaar2.vm.network :public_network, ip: '192.168.2.200', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
-                emekaar2.vm.network :public_network, ip: '10.10.10.2', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+                emekaar2.vm.network :public_network, ip: '10.10.10.2', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
                	emekaar2.vm.synced_folder "./scripts", "/vagrant", disabled: false
           	emekaar2.vm.provision "shell" , inline: "/vagrant/up.sh"
 	  	emekaar2.vm.provision "shell" , inline: "/vagrant/provision-hdd.sh"
@@ -57,7 +57,7 @@ Vagrant.configure(2) do |config|
          	emekaar3.vm.hostname = "emekaar3"
          	emekaar3.vm.network :public_network, ip: '192.168.7.174', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
 		emekaar3.vm.network :public_network, ip: '192.168.2.201', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
-                emekaar3.vm.network :public_network, ip: '10.10.10.3', netmask: "22", :dev => "enp7s0.4", :mode => 'bridge'
+                emekaar3.vm.network :public_network, ip: '10.10.10.3', netmask: "22", :dev => "enp4s0", :mode => 'bridge'
         	emekaar3.vm.synced_folder "./scripts", "/vagrant", disabled: false
           	emekaar3.vm.provision "shell" , inline: "/vagrant/up.sh"
           	emekaar3.vm.provision "shell" , inline: "/vagrant/provision-hdd.sh"
